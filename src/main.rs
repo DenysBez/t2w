@@ -8,7 +8,7 @@ mod token;
 fn main() {
     println!("Main function");
     let mut lexer = Lexer {
-        source: "+- */".to_string(),
+        source: String::from("+-123 9.8654*/"),
         cur_char: '\0',
         cur_pos: -1
     };

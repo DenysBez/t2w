@@ -1,6 +1,6 @@
 pub mod token {
     pub struct Token {
-        pub text: char,
+        pub text: String,
         pub kind: TokenType
     }
     #[derive(Debug)]
