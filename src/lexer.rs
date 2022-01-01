@@ -46,6 +46,8 @@ pub mod lexer {
         skip_whitespace(lexer);
         skip_comment(lexer);
 
+
+        //TODO: move this logic to associated method of Token type
         let mut token;
         if lexer.cur_char == '+' {
             token = Token {
@@ -142,7 +144,7 @@ pub mod lexer {
                 next_char(lexer);
             }
 
-            let token_text = lexer.source.chars().skip(start_pos as usize).take(lexer.cur_pos as usize).collect();
+            let token_text = lexer.source.chars().skip(start_pos as usize).take((lexer.cur_pos - start_pos) as usize).collect();
 
             token =  Token {
                 text: token_text,
@@ -167,12 +169,35 @@ pub mod lexer {
             }
 
 
-            let token_text = lexer.source.chars().skip(start_pos as usize).take((lexer.cur_pos + 1) as usize).collect();
+            let token_text = lexer.source.chars().skip(start_pos as usize).take((lexer.cur_pos + 1 - start_pos) as usize).collect();
 
             token =  Token {
                 text: token_text,
                 kind: TokenType::NUMBER
             }
+        } else if lexer.cur_char.is_alphabetic() {
+            let start_pos = lexer.cur_pos;
+            while peek(lexer).is_alphanumeric() {
+                next_char(lexer);
+            }
+
+            let token_text = lexer.source.chars().skip(start_pos as usize).take((lexer.cur_pos + 1 - start_pos) as usize).collect();
+
+            let keyword = TokenType::check_if_keyword(String::from(&token_text));
+
+            match keyword {
+                Some(ref x) => {
+                    token =  Token {
+                        text: token_text,
+                        kind: keyword.unwrap()
+                    }
+                },
+                None =>  token =  Token {
+                    text: token_text,
+                    kind: TokenType::IDENT
+                }
+            }
+
         } else {
             panic!("Unknown token")
         }
