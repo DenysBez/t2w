@@ -1,12 +1,13 @@
 pub mod token {
     use std::str::FromStr;
 
+    #[derive(Debug, Clone)]
     pub struct Token {
         pub text: String,
         pub kind: TokenType
     }
 
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, Clone, Copy, PartialEq)]
     pub enum TokenType {
         EOF = -1,
         NEWLINE = 0,
