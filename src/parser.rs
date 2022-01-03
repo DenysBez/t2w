@@ -1,9 +1,10 @@
 pub mod parser {
-    use crate::{get_token, Lexer, TokenType};
+    use crate::{get_token, Lexer, Symbol_Table, TokenType};
     use crate::token::token::Token;
 
     pub struct Parser {
         pub lexer: Lexer,
+        pub symbol_table: Symbol_Table,
         pub cur_token: Option<Token>,
         pub peek_token: Option<Token>
     }
@@ -72,6 +73,14 @@ pub mod parser {
             while !self.check_token(&TokenType::EOF) {
                 self.statement();
             }
+
+            //Check that each label referenced in a GOTO is declared.
+
+            for label in &self.symbol_table.labels_goto_ed {
+                if !self.symbol_table.labels_declared.contains(label) {
+                    panic!("Attempting to GOTO to undeclared label: {:?}", label);
+                }
+            }
         }
 
         fn statement(&mut self){
@@ -122,18 +131,32 @@ pub mod parser {
             else if self.check_token(&TokenType::LABEL) {
                 println!("STATEMENT-LABEL");
                 self.next_token();
+
+                //Make sure this label doesn't already exist
+                if self.symbol_table.labels_declared.contains(&self.cur_token.as_ref().unwrap().text) {
+                    panic!("Label already exists: {:?}", self.cur_token.as_ref().unwrap().text);
+                }
+                self.symbol_table.labels_declared.insert(self.cur_token.as_ref().unwrap().text.clone());
+
                 self.match_function(&TokenType::IDENT);
             }
             //"GOTO" ident
             else if self.check_token(&TokenType::GOTO) {
                 println!("STATEMENT-GOTO");
                 self.next_token();
+                self.symbol_table.labels_goto_ed.insert(self.cur_token.as_ref().unwrap().text.clone());
                 self.match_function(&TokenType::IDENT);
             }
-            //"LET" ident
+            //"LET" ident = expression
             else if self.check_token(&TokenType::LET) {
                 println!("STATEMENT-LET");
                 self.next_token();
+
+                //Check if ident exists in symbol table. If not, declare it.
+                if !self.symbol_table.symbol_table.contains(&self.cur_token.as_ref().unwrap().text) {
+                    self.symbol_table.symbol_table.insert(self.cur_token.as_ref().unwrap().text.clone());
+                }
+
                 self.match_function(&TokenType::IDENT);
                 self.match_function(&TokenType::EQ);
                 self.expression();
@@ -142,6 +165,12 @@ pub mod parser {
             else if self.check_token(&TokenType::INPUT) {
                 println!("STATEMENT-INPUT");
                 self.next_token();
+
+                //Check if ident exists in symbol table. If not, declare it.
+                if !self.symbol_table.symbol_table.contains(&self.cur_token.as_ref().unwrap().text) {
+                    self.symbol_table.symbol_table.insert(self.cur_token.as_ref().unwrap().text.clone());
+                }
+
                 self.match_function(&TokenType::IDENT);
             } else {
                 panic!("This is not a valid statement {:?}", self.cur_token.as_ref().unwrap().text);
@@ -241,6 +270,10 @@ pub mod parser {
             if self.check_token(&TokenType::NUMBER) {
                 self.next_token();
             } else if self.check_token(&TokenType::IDENT){
+                //Ensure the variable already exists
+                if !self.symbol_table.symbol_table.contains(&self.cur_token.as_ref().unwrap().text) {
+                    panic!("Referencing variable before assignment:: {:?}", self.cur_token.as_ref().unwrap().text);
+                }
                 self.next_token();
             } else {
                 panic!("Unexpected token at {:?}", self.cur_token.as_ref().unwrap().text);
