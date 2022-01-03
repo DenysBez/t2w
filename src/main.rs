@@ -10,7 +10,7 @@ mod parser;
 fn main() {
     println!("Main function");
     let mut lexer = Lexer {
-        source: String::from(r#"PRINT "hello, world!"
+        source: String::from(r#"LET foo = bar * 3 + 2
         "#),
         cur_char: ' ',
         cur_pos: -1

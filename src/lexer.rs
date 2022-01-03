@@ -139,7 +139,7 @@ pub mod lexer {
 
             while lexer.cur_char != '\"' {
                 if lexer.cur_char == '\r' || lexer.cur_char == '\n' || lexer.cur_char == '\t' || lexer.cur_char == '\\' || lexer.cur_char == '%' {
-                    panic!("illegal character in string")
+                    panic!("illegal character in string {:?}", lexer.cur_char)
                 }
                 next_char(lexer);
             }

@@ -64,6 +64,11 @@ pub mod parser {
         pub fn program(&mut self) {
             println!("PROGRAM");
 
+            //Since some newlines are required in our grammar, need to skip the excess.
+            while self.check_token(&TokenType::NEWLINE) {
+                self.statement();
+            }
+
             while !self.check_token(&TokenType::EOF) {
                 self.statement();
             }
@@ -81,6 +86,68 @@ pub mod parser {
                     self.expression();
                 }
             }
+            //"IF" comparison "THEN" {statement} "ENDIF"
+            else if self.check_token(&TokenType::IF) {
+                println!("STATEMENT IF");
+                self.next_token();
+                self.comparison();
+
+                self.match_function(&TokenType::THEN);
+                self.nl();
+
+                //Zero or more statements in the body.
+                while !self.check_token(&TokenType::ENDIF) {
+                    self.statement();
+                }
+
+                self.match_function(&TokenType::ENDIF);
+            }
+            //"WHILE" comparison "REPEAT" {statement} "ENDWHILE"
+            else if self.check_token(&TokenType::WHILE) {
+                println!("STATEMENT-WHILE");
+                self.next_token();
+                self.comparison();
+
+                self.match_function(&TokenType::REPEAT);
+                self.nl();
+
+                //Zero or more statements in the body.
+                while !self.check_token(&TokenType::ENDWHILE) {
+                    self.statement();
+                }
+
+                self.match_function(&TokenType::ENDWHILE);
+            }
+            //"LABEL" ident
+            else if self.check_token(&TokenType::LABEL) {
+                println!("STATEMENT-LABEL");
+                self.next_token();
+                self.match_function(&TokenType::IDENT);
+            }
+            //"GOTO" ident
+            else if self.check_token(&TokenType::GOTO) {
+                println!("STATEMENT-GOTO");
+                self.next_token();
+                self.match_function(&TokenType::IDENT);
+            }
+            //"LET" ident
+            else if self.check_token(&TokenType::LET) {
+                println!("STATEMENT-LET");
+                self.next_token();
+                self.match_function(&TokenType::IDENT);
+                self.match_function(&TokenType::EQ);
+                self.expression();
+            }
+            //"INPUT" ident
+            else if self.check_token(&TokenType::INPUT) {
+                println!("STATEMENT-INPUT");
+                self.next_token();
+                self.match_function(&TokenType::IDENT);
+            } else {
+                panic!("This is not a valid statement {:?}", self.cur_token.as_ref().unwrap().text);
+            }
+
+
             self.nl();
         }
 
@@ -94,8 +161,90 @@ pub mod parser {
                 self.next_token();
             }
         }
-        fn expression(&self) {
-            todo!()
+
+        //expression ::= term {( "-" | "+" ) term}
+        fn expression(&mut self) {
+            println!("EXPRESSION");
+
+
+            self.term();
+
+            //Can have 0 or more +/- and expressions.
+            while self.check_token(&TokenType::PLUS)
+                || self.check_token(&TokenType::MINUS) {
+                self.next_token();
+                self.term();
+            }
+        }
+
+        //term ::= unary {( "/" | "*" ) unary}
+        fn term(&mut self) {
+            println!("TERM");
+
+            self.unary();
+
+            while self.check_token(&TokenType::ASTERISK)
+                || self.check_token(&TokenType::SLASH) {
+                self.next_token();
+                self.unary();
+            }
+        }
+
+        //unary ::= ["+" | "-"] primary
+        fn unary(&mut self) {
+            println!("UNARY");
+
+            //Optional unary +/-
+
+            if self.check_token(&TokenType::PLUS) || self.check_token(&TokenType::MINUS) {
+                self.next_token();
+            }
+            self.primary();
+        }
+
+        //comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
+        fn comparison(&mut self) {
+            println!("COMPARISON");
+
+            self.expression();
+
+            //Must be at least one comparison operator and another expression
+
+            if self.isComparisonOperator() {
+                self.next_token();
+                self.expression();
+            } else {
+                panic!("Expected comparison operator at {:?}", self.cur_token.as_ref().unwrap().text);
+            }
+
+
+            //Can have 0 or more comparison operator and expressions
+            while self.isComparisonOperator() {
+                self.next_token();
+                self.expression();
+            }
+
+        }
+        fn isComparisonOperator(&self) -> bool {
+            return self.check_token(&TokenType::GT) ||
+                self.check_token(&TokenType::GTEQ)  ||
+                self.check_token(&TokenType::LT)  ||
+                self.check_token(&TokenType::LTEQ)  ||
+                self.check_token(&TokenType::EQEQ) ||
+                self.check_token(&TokenType::NOTEQ);
+        }
+
+        //primary ::= number | ident
+        fn primary(&mut self) {
+            println!("PRIMARY {:?}", self.cur_token.as_ref().unwrap().text);
+
+            if self.check_token(&TokenType::NUMBER) {
+                self.next_token();
+            } else if self.check_token(&TokenType::IDENT){
+                self.next_token();
+            } else {
+                panic!("Unexpected token at {:?}", self.cur_token.as_ref().unwrap().text);
+            }
         }
     }
 }
