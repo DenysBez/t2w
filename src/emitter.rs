@@ -1,4 +1,3 @@
-use std::fmt::format;
 use std::fs::File;
 use std::io::Write;
 
@@ -33,7 +32,7 @@ impl Emitter {
 
         return match file.write_all(format!("{}{}", self.header.clone(), self.code.clone()).as_ref()) {
             Err(e) => Err(e),
-            Ok(f) => Ok(())
+            Ok(f) => Ok(f)
         };
     }
 }

@@ -1,7 +1,7 @@
 use crate::emitter::Emitter;
 use crate::lexer::Lexer;
 use crate::parser::Parser;
-use crate::symbol_table::Symbol_Table;
+use crate::symbol_table::SymbolTable;
 
 mod lexer;
 mod token;
@@ -15,7 +15,7 @@ fn main() {
 
 
     println!("Main function");
-    let mut lexer = Lexer {
+    let lexer = Lexer {
         source: String::from(r#"LET a = 0
 WHILE a < 1 REPEAT
     PRINT "Enter number of scores: "
@@ -40,7 +40,7 @@ PRINT s / a
     };
 
 
-    let mut emitter = Emitter {
+    let emitter = Emitter {
         file: "out.rs".to_string(),
         full_path: "C:/dev/rust/kääntäjän_lähtö/compiler_output/src/main.rs".to_string(),
         header: "".to_string(),
@@ -49,7 +49,7 @@ PRINT s / a
 
 
 
-    let mut symbol_table = Symbol_Table::default();
+    let symbol_table = SymbolTable::default();
     let mut parser = Parser {
         lexer,
         symbol_table,

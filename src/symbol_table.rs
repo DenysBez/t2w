@@ -1,32 +1,18 @@
 use std::collections::HashSet;
 
 #[derive(Debug)]
-pub struct Symbol_Table {
+pub struct SymbolTable {
     pub symbol_table: HashSet<String>,
     pub labels_declared: HashSet<String>,
     pub labels_goto_ed: HashSet<String>
 }
 
-impl Default for Symbol_Table {
+impl Default for SymbolTable {
     fn default() -> Self {
-        Symbol_Table {
+        SymbolTable {
             symbol_table: HashSet::new(),
             labels_declared: HashSet::new(),
             labels_goto_ed: HashSet::new()
         }
-    }
-}
-
-impl Symbol_Table {
-    fn add_labels_declared(&mut self, val: String) {
-        self.labels_declared.insert(val);
-    }
-
-    fn add_labels_goto_ed(&mut self, val: String) {
-        self.labels_goto_ed.insert(val);
-    }
-
-    fn add_symbol_table(&mut self, val: String) {
-        self.symbol_table.insert(val);
     }
 }

@@ -24,10 +24,6 @@ impl Lexer {
         return self.source.chars().nth((self.cur_pos + 1) as usize).unwrap();
     }
 
-    fn abort(&mut self) {
-        println!("abort called")
-    }
-
     fn skip_whitespace(&mut self) {
         while self.cur_char == ' ' ||  self.cur_char == '\t' ||  self.cur_char == '\r' {
             self.next_char();
@@ -46,7 +42,7 @@ impl Lexer {
         self.skip_whitespace();
         self.skip_comment();
 
-        let mut token;
+        let token;
         if self.cur_char == '+' {
             token = Token {
                 text: self.cur_char.to_string(),
@@ -79,10 +75,10 @@ impl Lexer {
             }
         } else if self.cur_char == '=' {
             if self.peek() == '=' {
-                let lastChar = self.cur_char;
+                let last_char = self.cur_char;
                 self.next_char();
                 token = Token {
-                    text: lastChar.to_string() + &*self.cur_char.to_string(),
+                    text: last_char.to_string() + &*self.cur_char.to_string(),
                     kind: TokenType::EQEQ
                 }
             } else {
@@ -93,10 +89,10 @@ impl Lexer {
             }
         } else if self.cur_char == '>' {
             if self.peek() == '=' {
-                let lastChar = self.cur_char;
+                let last_char = self.cur_char;
                 self.next_char();
                 token = Token {
-                    text: lastChar.to_string() + &*self.cur_char.to_string(),
+                    text: last_char.to_string() + &*self.cur_char.to_string(),
                     kind: TokenType::GTEQ
                 }
             } else {
@@ -107,10 +103,10 @@ impl Lexer {
             }
         } else if self.cur_char == '<' {
             if self.peek() == '=' {
-                let lastChar = self.cur_char;
+                let last_char = self.cur_char;
                 self.next_char();
                 token = Token {
-                    text: lastChar.to_string() + &*self.cur_char.to_string(),
+                    text: last_char.to_string() + &*self.cur_char.to_string(),
                     kind: TokenType::LTEQ
                 }
             } else {
@@ -121,10 +117,10 @@ impl Lexer {
             }
         } else if self.cur_char == '!' {
             if self.peek() == '=' {
-                let lastChar = self.cur_char;
+                let last_char = self.cur_char;
                 self.next_char();
                 token = Token {
-                    text: lastChar.to_string() + &*self.cur_char.to_string(),
+                    text: last_char.to_string() + &*self.cur_char.to_string(),
                     kind: TokenType::NOTEQ
                 }
             } else {

@@ -1,10 +1,10 @@
-use crate::{Emitter, Lexer, Symbol_Table};
+use crate::{Emitter, Lexer, SymbolTable};
 use crate::token::{Token, TokenType};
 
 
 pub struct Parser {
     pub lexer: Lexer,
-    pub symbol_table: Symbol_Table,
+    pub symbol_table: SymbolTable,
     pub cur_token: Option<Token>,
     pub peek_token: Option<Token>,
     pub emitter: Emitter
@@ -32,7 +32,7 @@ impl Parser {
     fn match_function(&mut self, token_type: &TokenType) {
         if !self.check_token(token_type) {
 
-            let mut val ;
+            let val ;
             if self.cur_token.is_some() {
                 val = self.cur_token.as_ref().unwrap();
 
@@ -52,11 +52,6 @@ impl Parser {
        //DBG println!("cur_token current {:?} peek: {:?}", self.cur_token,  self.peek_token);
 
    }
-
-    fn abort(msg: String) {
-        panic!("Error")
-    }
-
 
     //Rules
 
@@ -229,7 +224,7 @@ impl Parser {
         //Can have 0 or more +/- and expressions.
         while self.check_token(&TokenType::PLUS)
             || self.check_token(&TokenType::MINUS) {
-            self.emitter.emit(&self.cur_token.as_ref().unwrap().text.clone());
+            self.emitter.emit(&self.cur_token.as_ref().unwrap().text);
             self.next_token();
             self.term();
         }
@@ -243,7 +238,7 @@ impl Parser {
 
         while self.check_token(&TokenType::ASTERISK)
             || self.check_token(&TokenType::SLASH) {
-            self.emitter.emit(&self.cur_token.as_ref().unwrap().text.clone());
+            self.emitter.emit(&self.cur_token.as_ref().unwrap().text);
             self.next_token();
             self.unary();
         }
@@ -256,7 +251,7 @@ impl Parser {
         //Optional unary +/-
 
         if self.check_token(&TokenType::PLUS) || self.check_token(&TokenType::MINUS) {
-            self.emitter.emit(&self.cur_token.as_ref().unwrap().text.clone());
+            self.emitter.emit(&self.cur_token.as_ref().unwrap().text);
             self.next_token();
         }
         self.primary();
