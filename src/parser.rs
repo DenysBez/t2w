@@ -14,15 +14,15 @@ pub struct Parser {
 impl Parser {
 
     fn check_token(&self, token_type: &TokenType) -> bool {
-        if self.cur_token.is_some() {
+        if self.cur_token.as_ref().is_some() {
             self.cur_token.as_ref().unwrap().kind.eq(token_type)
         } else {
             false
         }
     }
 
-    fn check_peek(&self, token_type: TokenType) -> bool {
-        if self.peek_token.is_some() {
+    fn check_peek(&self, token_type: &TokenType) -> bool {
+        if self.peek_token.as_ref().is_some() {
             self.peek_token.as_ref().unwrap().kind.eq(&token_type)
         } else {
             false
@@ -270,7 +270,7 @@ impl Parser {
 
         //Must be at least one comparison operator and another expression
 
-        if self.isComparisonOperator() {
+        if self.is_comparison_operator() {
             self.emitter.emit(&self.cur_token.as_ref().unwrap().text.clone());
             self.next_token();
             self.expression();
@@ -280,14 +280,14 @@ impl Parser {
 
 
         //Can have 0 or more comparison operator and expressions
-        while self.isComparisonOperator() {
+        while self.is_comparison_operator() {
             self.emitter.emit(&self.cur_token.as_ref().unwrap().text.clone());
             self.next_token();
             self.expression();
         }
 
     }
-    fn isComparisonOperator(&self) -> bool {
+    fn is_comparison_operator(&self) -> bool {
         return self.check_token(&TokenType::GT) ||
             self.check_token(&TokenType::GTEQ)  ||
             self.check_token(&TokenType::LT)  ||

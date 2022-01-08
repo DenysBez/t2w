@@ -26,10 +26,14 @@ impl Emitter {
     }
 
     pub fn write_to_file(&self) -> std::io::Result<()> {
-        let mut file = File::create(&self.full_path)?;
+        let mut file = match File::create(&self.full_path) {
+            Err(e) => return Err(e),
+            Ok(f) => f
+        };
 
-        file.write_all(format!("{}{}", self.header.clone(), self.code.clone()).as_ref());
-
-        Ok(())
+        return match file.write_all(format!("{}{}", self.header.clone(), self.code.clone()).as_ref()) {
+            Err(e) => Err(e),
+            Ok(f) => Ok(())
+        };
     }
 }

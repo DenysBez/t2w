@@ -46,8 +46,6 @@ impl Lexer {
         self.skip_whitespace();
         self.skip_comment();
 
-
-        //TODO: move this logic to associated method of Token type
         let mut token;
         if self.cur_char == '+' {
             token = Token {
@@ -133,7 +131,6 @@ impl Lexer {
                 panic!("Expected !=, got ! {}",  self.peek().to_string());
             }
         } else if self.cur_char == '\"' {
-
             self.next_char();
             let start_pos = self.cur_pos;
 
@@ -150,7 +147,6 @@ impl Lexer {
                 text: token_text,
                 kind: TokenType::STRING
             }
-
         } else if self.cur_char.is_digit(10) {
             let start_pos = self.cur_pos;
             while self.peek().is_digit(10) {
